@@ -1,0 +1,356 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WebService</name>
+    </assembly>
+    <members>
+        <member name="T:WebService.Controllers.CustomerTestController">
+            <summary>
+            Only for Debug simulation of external api
+            </summary>
+        </member>
+        <member name="M:WebService.Controllers.CustomerTestController.GetOrder">
+            <summary>
+            Only for debug
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebService.Controllers.CustomerTestController.GetOrder(System.Nullable{System.Guid})">
+            <summary>
+            Simulation of validation customers from other api
+            validapi represents customer in database of other api
+            </summary>
+            <param name="id">id of customer to be validated</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebService.Controllers.OrdersController">
+            <summary>
+            OrdersController Manages CRUD operation of Orders
+            Uses LiteDB to store Orders
+            Uses RestSharp to Access external api with customers
+            </summary>
+        </member>
+        <member name="F:WebService.Controllers.OrdersController._logger">
+            <summary>
+            _logger manages Logging Events to Console.
+            </summary>
+        </member>
+        <member name="F:WebService.Controllers.OrdersController._repository">
+            <summary>
+            _repostitory handles database CRUD operations
+            </summary>
+        </member>
+        <member name="F:WebService.Controllers.OrdersController._configuration">
+            <summary>
+            _configuration store configuration from appSettings.json
+            required to define Database's path and tableName of Orders
+            </summary>
+        </member>
+        <member name="M:WebService.Controllers.OrdersController.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{WebService.Controllers.OrdersController},WebService.Models.IOrderRepository{WebService.Models.Order})">
+            <summary>
+            Initialisation of _configuration, _logger, _repository injected from StartUp
+            </summary>
+            <param name="configuration">Configuration has reqired domain and tableName of orders of in-memory database</param>
+            <param name="logger">Configured Logger from Program. logger manages Logging Events to Console.</param>
+            <param name="repository">Handles definition of CRUD methods on in-memory database</param>
+        </member>
+        <member name="M:WebService.Controllers.OrdersController.Get">
+            <summary>
+            Handling GET Requests from api/orders
+            Finding All Orders from Database
+            </summary>
+            <returns>
+            "application/json" with HTTPCode 200 - Returns Json array of All Orders in Database and Http success response code 200
+            HTTPCode 404 - Return Http Response Code 404 when no Orders are found.
+            </returns>
+        </member>
+        <member name="M:WebService.Controllers.OrdersController.Get(System.Guid)">
+            <summary>
+            Handling GET Requests from api/orders/{id}
+            Finding Orders By Id from Database
+            </summary>
+            <param name="id">Uniqe GUID of Order, which sould be returned</param>
+            <returns>
+            "application/json" with HTTPCode 200 - Returns Json object of Order with {id} passed to argument and Http success response code 200
+            HTTPCode 404 - Return Http Response Code 404 when Order with {id}  has not been found
+            </returns>
+        </member>
+        <member name="M:WebService.Controllers.OrdersController.Post(WebService.Models.Order)">
+            <summary>
+            Handling POST Requests from api/orders
+            Storing Order in Database.
+            </summary>
+            <param name="newOrder">
+            Request Body contains Fields of Order, at Least Required
+            </param>
+            <returns>
+            application/json of Id and HTTPCode 201 - Successfuly created Order in Database, returns its ID and HTTP success create response Code
+            HTTPCode 400 - Not Valid Data entered to Request Body, defined by Data Validation annotations in Model/Order,  Http failed response code
+            </returns>
+        </member>
+        <member name="M:WebService.Controllers.OrdersController.Put(System.Guid,WebService.Models.Order)">
+            <summary>
+            Update operation - Updates Order in database to modifed instance enterd in Request Body
+            </summary>
+            <param name="id">Id of Order in database which will be modified</param>
+            <param name="updatedOrder">New instance of modified Order, will be stored in existing order by id</param>
+            <returns>
+            "application/json" with HTTPCode 200 - Returns Json object of Order with {id} passed to argument and Http success response code 200
+            HTTPCode 404 - Return Http Response Code 404 when Order with {id} has not been found
+            HTTPCode 404 - Return Http Response Code 404 when Order with {id} has not been found
+            </returns>
+        </member>
+        <member name="M:WebService.Controllers.OrdersController.Delete(System.Guid)">
+            <summary>
+            Deletes Order from repository by passed {id}
+            </summary>
+            <param name="id">Id of Order to delete</param>
+            <returns>
+            HTTP Code 204 and {id} - Order has not been found in database, returns 204HTTP code and passed id 
+            HTTP Code 200 and {id} - Order has been deleted successfuly, return Http success response code 200.
+            </returns>
+        </member>
+        <member name="M:WebService.Controllers.OrdersController.ValidateCustomer(System.Nullable{System.Guid})">
+            <summary>
+            Validates if CustomerId exists, from external API
+            defained in appsettings.json at
+            CustomerValidation
+            </summary>
+            <param name="CustomerId">
+            Entered Id of customer
+            </param>
+            <returns>
+            HTTP Code 503 - Validation was enabled, but couldn't be executed. External api didn't response, return HTTP response code 503, Service Unavailabe
+            HTTP Code 404 - Validation failed, external Api did not confirmed existance of Customer Id, returns HTTP response code 404, Not Found
+            HTTP Code 200 - Validation was disabled or CustomerId has been validated successfuly, returns HTTP success response code 200, Ok
+            </returns>
+        </member>
+        <member name="T:WebService.Models.IOrder">
+            <summary>
+            Interface defines Attribute of Order
+            </summary>
+        </member>
+        <member name="T:WebService.Models.IOrderRepository`1">
+            <summary>
+            Definition of CRUD methods on repository
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:WebService.Models.IOrderRepository`1.databasePath">
+            <summary>
+            Path to the In-memory Database ex. C:/database  
+            </summary>
+        </member>
+        <member name="P:WebService.Models.IOrderRepository`1.tableName">
+            <summary>
+            Name of Ts Table ex. orders
+            </summary>
+        </member>
+        <member name="M:WebService.Models.IOrderRepository`1.FindAll">
+            <summary>
+            Finds all Ts form Database
+            </summary>
+            <returns> All Ts from database in IEnumerable array</returns>
+        </member>
+        <member name="M:WebService.Models.IOrderRepository`1.FindByCondition(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+            <summary>
+            Find T by Id
+            </summary>
+            <param name="expression"></param>
+            <returns>IEnumerable array of T with one T found, or empty array if not</returns>
+        </member>
+        <member name="M:WebService.Models.IOrderRepository`1.Create(`0)">
+            <summary>
+            Stores Entity from parameter in database
+            </summary>
+            <param name="entity">Entity will be stored in Database</param>
+        </member>
+        <member name="M:WebService.Models.IOrderRepository`1.Update(System.Guid,`0)">
+            <summary>
+            Updates entiry in databse
+            </summary>
+            <param name="id">Id of to be modified entity</param>
+            <param name="entity">new modifed copy</param>
+            <returns>true if successful, false if not</returns>
+        </member>
+        <member name="M:WebService.Models.IOrderRepository`1.Delete(System.Guid)">
+            <summary>
+            Delete entity from database
+            </summary>
+            <param name="id">Id of entity, which will be deleted</param>
+            <returns>True if successful, false if entity was not found</returns>
+        </member>
+        <member name="T:WebService.Models.LoggingCodes">
+            <summary>
+            Logging codes of Events
+            </summary>
+        </member>
+        <member name="T:WebService.Models.Order">
+            <summary>
+            Model of Order, definition of Constraints with DataAnnotaions
+            </summary>
+        </member>
+        <member name="P:WebService.Models.Order.Id">
+            <summary>
+            Unique Id of every Order
+            </summary>
+        </member>
+        <member name="P:WebService.Models.Order.CustomerId">
+            <summary>
+            Customer who requested Order
+            Field is required
+            </summary>
+        </member>
+        <member name="P:WebService.Models.Order.State">
+            <summary>
+            State Tracks progress of every Order
+            Is updated in run-time
+            Field is required
+            </summary>
+        </member>
+        <member name="P:WebService.Models.Order.Description">
+            <summary>
+            Destiption is Optional field, defined from Customer
+            Special request, which couldnt be entered in client.
+            </summary>
+        </member>
+        <member name="P:WebService.Models.OrderRepository.databasePath">
+            <summary>
+            Path to folder with in-memory database
+            </summary>
+        </member>
+        <member name="P:WebService.Models.OrderRepository.tableName">
+            <summary>
+            Name of Table of Orders
+            </summary>
+        </member>
+        <member name="M:WebService.Models.OrderRepository.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Setup of configuration
+            </summary>
+            <param name="configuration">defined in appsettings.json</param>
+        </member>
+        <member name="M:WebService.Models.OrderRepository.Create(WebService.Models.Order)">
+            <summary>
+            Create order in database
+            </summary>
+            <param name="order">Will be inserted to database</param>
+        </member>
+        <member name="M:WebService.Models.OrderRepository.Delete(System.Guid)">
+            <summary>
+            Delete existing order from database
+            </summary>
+            <param name="orderId">Id of Order, which will be deleted</param>
+            <returns>
+            True if successfuly deleted
+            False if couldn't be found
+            </returns>
+        </member>
+        <member name="M:WebService.Models.OrderRepository.FindAll">
+            <summary>
+            Select All orders from database
+            </summary>
+            <returns>IEnumerable List of all Orders</returns>
+        </member>
+        <member name="M:WebService.Models.OrderRepository.FindByCondition(System.Linq.Expressions.Expression{System.Func{WebService.Models.Order,System.Boolean}})">
+            <summary>
+            Orders are Selected from database by Condition
+            </summary>
+            <param name="expression">Condition specifying which orders will be selected</param>
+            <returns>IEnumerable array od Orders</returns>
+        </member>
+        <member name="M:WebService.Models.OrderRepository.Update(System.Guid,WebService.Models.Order)">
+            <summary>
+            Update existing Order
+            </summary>
+            <param name="id">Id of order, which will be updated</param>
+            <param name="order">copy of order, with new data</param>
+            <returns>True if found and updated successfuly, false if not found</returns>
+        </member>
+        <member name="T:WebService.Models.OrderStateEnum">
+            <summary>
+            OrderStateEnum Tracks progress on every Order
+            </summary>
+        </member>
+        <member name="F:WebService.Models.OrderStateEnum.Recieved">
+            <summary>
+            Order has been Recieved and stored
+            </summary>
+        </member>
+        <member name="F:WebService.Models.OrderStateEnum.Classified">
+            <summary>
+            Order has been Classified Manualy, by Worker
+            </summary>
+        </member>
+        <member name="F:WebService.Models.OrderStateEnum.Accepted">
+            <summary>
+            Order has been accepted by worker
+            </summary>
+        </member>
+        <member name="F:WebService.Models.OrderStateEnum.Paid">
+            <summary>
+            Order has been paid by Customer
+            </summary>
+        </member>
+        <member name="F:WebService.Models.OrderStateEnum.InProgress">
+            <summary>
+            Order is in progress
+            </summary>
+        </member>
+        <member name="F:WebService.Models.OrderStateEnum.Finished">
+            <summary>
+            Order has been finished
+            </summary>
+        </member>
+        <member name="F:WebService.Models.OrderStateEnum.Canceled">
+            <summary>
+            Order has not been Accepted
+            </summary>
+        </member>
+        <member name="M:WebService.Program.Main(System.String[])">
+            <summary>
+            Default startup method.
+            Runs WebHost.
+            </summary>
+            <param name="args"> Arguments passed when launching</param>
+        </member>
+        <member name="M:WebService.Program.CreateWebHostBuilder(System.String[])">
+            <summary>
+            Configuration of WebHost.
+            Adding Logger, configuration from json
+            Defining RootContainer
+            </summary>
+            <param name="args">Arguments from console</param>
+            <returns>Configured WebHost Builder</returns>
+        </member>
+        <member name="F:WebService.Startup._logger">
+            <summary>
+            Logger of OrderController
+            Logs Requests, Results, Progress and Errors
+            </summary>
+        </member>
+        <member name="P:WebService.Startup.Configuration">
+            <summary>
+            Combined configuration json files to one object
+            </summary>
+        </member>
+        <member name="P:WebService.Startup.Repository">
+            <summary>
+            Definition of Database for Order Model
+            </summary>
+        </member>
+        <member name="M:WebService.Startup.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{WebService.Startup})">
+            <summary>
+            Startup of WebHost
+            </summary>
+            <param name="configuration">Configuration has reqired domain and tableName of orders of in-memory database</param>
+            <param name="logger">Configured Logger from Program</param>
+        </member>
+        <member name="M:WebService.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            This method gets called by the runtime. Adding services to Web Host
+            </summary>
+            <param name="services">Dependency injection of services to WebHost</param>
+        </member>
+    </members>
+</doc>
